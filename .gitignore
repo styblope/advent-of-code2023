@@ -1,1 +1,3 @@
 newday.sh
+**/*.o
+**/main
