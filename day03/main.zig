@@ -7,12 +7,10 @@ const Allocator = std.mem.Allocator;
 const data = @embedFile("input");
 // const data = @embedFile("test");
 
-const Loc = struct {x:usize, y:usize,};
-
 pub fn main() !void {
     var list = std.ArrayList([]const u8).init(std.heap.page_allocator);
     defer list.deinit();
-    var gears = std.AutoHashMap(Loc, u64).init(std.heap.page_allocator);
+    var gears = std.AutoHashMap(struct {x:usize, y:usize}, u64).init(std.heap.page_allocator);
     defer gears.deinit();
 
     var sum1 : u64 = 0;

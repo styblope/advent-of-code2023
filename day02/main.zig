@@ -6,12 +6,6 @@ const assert = std.debug.assert;
 
 const data = @embedFile("input");
 
-const Set = struct {
-    red: u32 = 0,
-    green: u32 = 0,
-    blue: u32 = 0,
-};
-
 pub fn main() !void {
     var sum1 : u32 = 0;
     var sum2 : u32 = 0;
@@ -29,7 +23,7 @@ pub fn main() !void {
         var sets = std.mem.splitSequence(u8, buf, "; ");
         while (sets.next()) |set| {
             // parse colors in sets
-            var s = Set{};
+            var s = struct { red: u32 = 0, green: u32 = 0, blue: u32 = 0 }{};
             var colors = std.mem.splitSequence(u8, set, ", ");  
             while (colors.next()) |color| {
                 // parse colors

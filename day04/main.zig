@@ -12,8 +12,7 @@ const data = @embedFile("input");
 const W=10;
 const M=25;
 const C=220; // number of lines
-const Card = struct {wins: [W]u32, mine: [M]u32, copies: u32};
-var cards : [C]Card = undefined;
+var cards : [C]struct {wins: [W]u32, mine: [M]u32, copies: u32} = undefined;
 
 var sum1 : u32 = 0;
 var sum2 : u32 = 0;
