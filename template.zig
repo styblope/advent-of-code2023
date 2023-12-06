@@ -8,16 +8,13 @@ const assert = std.debug.assert;
 const data = @embedFile("input");
 // const data = @embedFile("test");
 
-var sum1 : u32 = 0;
-var sum2 : u32 = 0;
+var sum1: u32 = 0;
+var sum2: u32 = 0;
 
 pub fn main() !void {
-    var sum : u32 = 0;
-
-    // convert and sum 
     var lines = splitSequence(u8, data, "\n");
-    while (lines.next()) |value| {
-        sum += parseInt(i64, value, 10) catch 0; // empty string
+    while (lines.next()) |line| {
+        _ = line;
     }
     print("Part 1: {}\n", .{sum1});
     print("Part 2: {}\n", .{sum2});
