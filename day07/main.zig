@@ -6,37 +6,35 @@ const assert = std.debug.assert;
 const tokenizeScalar = std.mem.tokenizeScalar;
 const parseInt = std.fmt.parseInt;
 
-const data = @embedFile("input-andrej");
+const data = @embedFile("input");
 // const data = @embedFile("test");
 
 var sum: u32 = 0;
 
-const Hand = struct {h: []u8, v: u32, t: HandType};
+const Hand = struct {h: []const u8, v: u32, t: HandType};
 var hands = std.ArrayList(Hand).init(std.heap.page_allocator);
 const HandType = enum(u8) { high, one, two, three, full, four, five };
-// const cards = [_]u8{'2', '3', '4', '5', '6', '7', '8', '9', 'T', 'J', 'Q', 'K', 'A'}; // part 1
-const cards = [_]u8{'J', '2', '3', '4', '5', '6', '7', '8', '9', 'T', 'Q', 'K', 'A'}; // part 2
+// const cards = [_]u8{'2', '3', '4', '5', '6', '7', '8', '9', 'T', 'J', 'Q', 'K', 'A'}; // use this for part 1
+const cards = [_]u8{'J', '2', '3', '4', '5', '6', '7', '8', '9', 'T', 'Q', 'K', 'A'}; // use this for part 2
 
 pub fn main() !void {
     var lines = tokenizeScalar(u8, data, '\n');
     while (lines.next()) |line| {
-        const h = try std.heap.page_allocator.alloc(u8, 5);
+        const h = line[0..5];
         const v = try parseInt(u32, line[6..], 10);
-        @memcpy(h, line[0..5]);
-        const hand: Hand = .{.h=h, .v=v, .t=hand_type(h)};
-        try hands.append(hand);
+        try hands.append(.{.h=h, .v=v, .t=hand_type(h)});
     }
 
     std.mem.sort(Hand, hands.items, {}, sortFn);
     for (hands.items, 1..) |item, i| {
         // print("{} {s} {any} {}\n", .{i, item.h, item.t, item.v});
-        print("{s}\n", .{item.h});
+        // print("{s}\n", .{item.h});
         sum += @as(u32, @intCast(i))*item.v;
     }
-    print("Part 1: {}\n", .{sum});
+    print("Answer: {}\n", .{sum});
 }
 
-fn hand_type(hand: []u8) HandType {
+fn hand_type(hand: []const u8) HandType {
     var counts=[_]u8{0}**cards.len; 
     var j: u8 = 0;
     for (cards, 0..) |c, i| {
