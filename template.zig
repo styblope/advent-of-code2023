@@ -32,10 +32,11 @@ const BitSet = std.DynamicBitSet;
 
 // Other possibly useful stdlib functions
 const tokenizeAny = std.mem.tokenizeAny;
-const splitAny = std.mem.splitAny;
 const tokenizeSequence = std.mem.tokenizeSequence;
+const splitAny = std.mem.splitAny;
 const splitSequence = std.mem.splitSequence;
 const splitScalar = std.mem.splitScalar;
+const parseFloat = std.fmt.parseFloat;
 const indexOf = std.mem.indexOfScalar;
 const indexOfAny = std.mem.indexOfAny;
 const indexOfStr = std.mem.indexOfPosLinear;
@@ -46,36 +47,6 @@ const trim = std.mem.trim;
 const sliceMin = std.mem.min;
 const sliceMax = std.mem.max;
 
-const parseFloat = std.fmt.parseFloat;
-
 const sort = std.sort.block;
 const asc = std.sort.asc;
 const desc = std.sort.desc;
-
-fn chompInt(comptime T: type, line: []const u8, index: *usize) !T {
-    var start: ?usize = null;
-    var i: usize = index.*;
-    while (i < line.len) : (i += 1) {
-        if (std.ascii.isDigit(line[i])) {
-            start = start orelse i;
-            continue;
-        } else if (start) |s| {
-            print("{s}\n", .{line[s..i]});
-            index.* = i;
-            break;
-        }
-    }
-    if (start) |s| return std.fmt.parseInt(T, line[s..i], 10) 
-    else return error.ParseError;
-}
-
-test "chompInt" {
-    const line = "xyz  123, K";
-    const line2 = "xyz789";
-    var i: usize = 2; try std.testing.expect(try chompInt(u64, line, &i) == 123); 
-    try std.testing.expect(i == 8);
-    i = 6; try std.testing.expect(try chompInt(u64, line, &i) == 23);
-    i = 8; try std.testing.expectError(error.ParseError, chompInt(u64, line, &i));
-    i = line.len - 1; try std.testing.expectError(error.ParseError, chompInt(u64, line, &i));
-    i = 2; try std.testing.expect(try chompInt(u64, line2, &i) == 789);
-}
