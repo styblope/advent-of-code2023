@@ -6,7 +6,7 @@ const assert = std.debug.assert;
 const tokenizeScalar = std.mem.tokenizeScalar;
 const parseInt = std.fmt.parseInt;
 var arena = std.heap.ArenaAllocator.init(std.heap.page_allocator);
-var hm = std.StringHashMap(usize).init(arena.allocator());
+const HM = std.StringHashMap(usize);
 
 const data = @embedFile("input");
 // const data = @embedFile("test");
@@ -28,15 +28,15 @@ pub fn main() !void {
         var lbuf: [256]u8 = undefined;
         var rbuf: [128]u8 = undefined;
         for (0..N) |_| {
-            @memcpy(lbuf[l .. l + left.len], left);
+            @memcpy(lbuf[l..l + left.len], left);
             lbuf[l + left.len] = '?';
-            @memcpy(rbuf[r .. r + right.len], right);
+            @memcpy(rbuf[r..r + right.len], right);
             rbuf[r + right.len] = ',';
             l += left.len + 1;
             r += right.len + 1;
         }
-        const lf = lbuf[0 .. N * left.len + N - 1]; // left folded
-        const rf = rbuf[0 .. N * right.len + N - 1]; // right folded
+        const lf = lbuf[0..N * left.len + N - 1]; // left folded
+        const rf = rbuf[0..N * right.len + N - 1]; // right folded
 
         var rc: [128]usize = undefined; // . and #
         rc[0] = 0; // first dot count
@@ -49,15 +49,13 @@ pub fn main() !void {
             rc[i + 1] = 1;
             rlen += 1;
         }
-        rc[i - 1] = 0;
+        rc[i-1] = 0;
         rlen -= 1;
 
-        recurse(lf.len - rlen, 0, rc[0..i], lf);
-        
-        var key_iter = hm.keyIterator();
-        while(key_iter.next()) |key|
-            arena.allocator().free(key.*);
-        hm.clearRetainingCapacity();
+        var hm = std.StringHashMap(usize).init(arena.allocator());
+        recurse(lf.len - rlen, 0, rc[0..i], lf, &hm);
+        hm.deinit();
+        _ = arena.reset(.retain_capacity);
     }
     print("Answer {}\n", .{sum});
 }
@@ -65,7 +63,7 @@ pub fn main() !void {
 /// fill: number of required dots to match the left-side length
 /// index: index of current dot position (0, 2, 4, ... rc.len)
 /// rc: right-side dot and hash counters
-fn recurse(fill: usize, index: usize, rc: []usize, left: []const u8) void {
+fn recurse(fill: usize, index: usize, rc: []usize, left: []const u8, hm: *HM) void {
     assert(@mod(index, 2) == 0);
     if (index < rc.len) {
         const prev = rc[index];
@@ -83,7 +81,7 @@ fn recurse(fill: usize, index: usize, rc: []usize, left: []const u8) void {
                 if (hm.get(key)) |val| {
                     sum += val;
                 } else {
-                    recurse(fill - i, index + 2, rc, left);
+                    recurse(fill - i, index + 2, rc, left, hm);
                     hm.putNoClobber(key, sum - sum_before) catch unreachable;
                 }
             }
